@@ -82,8 +82,10 @@ button.danger{border-color:#6b2320;color:#f0928d}
 .lvl .lb{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim)}
 .lvl .vl{margin-left:auto;font-size:22px;font-variant-numeric:tabular-nums;line-height:1}
 .lvl .vl small{font-size:12px;color:var(--dim);margin-left:2px}
+.lvl .pk{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:78px;text-align:right}
 .segs{display:flex;gap:2px;height:20px}
 .segs i{flex:1;border-radius:1px;background:var(--off);transition:background .12s}
+.segs i.peak{background:var(--fg)!important;box-shadow:0 0 5px var(--fg)}
 .sc{display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-top:3px}
 
 .gauges{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -287,7 +289,7 @@ const L={
 de:{bandHdr:"Band — PA meldet",abLabel:"Bandwahl per TCI",
 attHdr:"Abschwächer",
 lvlHdr:"Pegel",thHdr:"Temperatur, Lüfter, Versorgung",alHdr:"Alarme",
-tTemp:"PA Temp",tFan:"Lüfter",tVolt:"Spannung",tAmp:"Strom",tSel:"Bandwahl der PA",
+tTemp:"PA Temp",tFan:"Lüfter",tVolt:"Spannung",tAmp:"Strom",tSel:"Bandwahl der PA",tPeak:"Peak",
 tAtt:"Abschwächer",bClear:"Alarm quittieren",alarmTitle:"JUMA PA: Alarm",alarmBody:"Die Endstufe meldet: %s",bMute:"Stummschalten",bMuted:"Stumm",lSound:"Akustischer Alarm",bNotify:"Benachrichtigungen erlauben",notifyOn:"Benachrichtigungen aktiv",notifyNo:"Benachrichtigungen erlaubt der Browser nur über HTTPS. Diese Seite läuft über http://, deshalb geht es hier nicht. Der Alarmton und das Banner funktionieren unabhängig davon.",notifyDenied:"Benachrichtigungen wurden abgelehnt",soundHint:"Die PA piepst nur vor Ort. Der Browser wiederholt den Alarmton alle 5 s, bis er quittiert ist oder der Alarm weg ist. Der Ton startet erst, nachdem die Seite einmal angeklickt wurde — so will es der Browser.",vNorm:"normal",vPre:"Vorwarnung",vUnder:"Unterspannung",vHigh:"erhöht",vOver:"Überspannung",iTrip:"Trip bei %s A",
 cfgHdr:"Konfiguration",lHost:"Gerätename (mDNS, OTA)",lSsid:"WLAN SSID",lPass:"WLAN Passwort",phPass:"unverändert lassen",
 lTciHost:"TCI Host (SDR-Software)",lTciPort:"TCI Port",lTciOn:"TCI aktiv",lTciLost:"Bei TCI-Verlust auf Automatik der PA",tciLostHint:"Schickt nach 15 s ohne TCI ein =A. Welche Methode die PA dann nutzt, steht in ihrer eigenen Konfiguration (F-Sense, FT-817, Yaesu CAT, KX2/KX3, JUMA-TRX2) — steht sie dort auf Manual, bringt =A nichts. Ohne diesen Schalter bleibt die PA auf dem zuletzt kommandierten Band, weil =Bn sie von A auf M schaltet.",
@@ -316,7 +318,7 @@ nBandset:"Band umgeschaltet: %s"},
 en:{bandHdr:"Band — PA reports",abLabel:"Band select via TCI",
 attHdr:"Attenuator",
 lvlHdr:"Levels",thHdr:"Temperature, fan, supply",alHdr:"Alarms",
-tTemp:"PA temp",tFan:"Fan",tVolt:"Voltage",tAmp:"Current",tSel:"PA band select",
+tTemp:"PA temp",tFan:"Fan",tVolt:"Voltage",tAmp:"Current",tSel:"PA band select",tPeak:"Peak",
 tAtt:"Attenuator",bClear:"Clear alarm",alarmTitle:"JUMA PA: alarm",alarmBody:"The amplifier reports: %s",bMute:"Mute",bMuted:"Muted",lSound:"Audible alarm",bNotify:"Enable notifications",notifyOn:"Notifications active",notifyNo:"Browsers only allow notifications over HTTPS. This page runs over http://, so it cannot work here. The alarm tone and banner work regardless.",notifyDenied:"Notifications were denied",soundHint:"The PA only beeps locally. The browser repeats the alarm tone every 5 s until acknowledged or the alarm clears. Sound starts only after the page has been clicked once — browser policy.",vNorm:"normal",vPre:"pre-limit",vUnder:"under-voltage",vHigh:"elevated",vOver:"over-voltage",iTrip:"trip at %s A",
 cfgHdr:"Setup",lHost:"Device name (mDNS, OTA)",lSsid:"Wi-Fi SSID",lPass:"Wi-Fi password",phPass:"leave unchanged",
 lTciHost:"TCI host (SDR software)",lTciPort:"TCI port",lTciOn:"TCI enabled",lTciLost:"Fall back to the PA\u2019s own band select",tciLostHint:"Sends =A after 15 s without TCI. Which method the PA then uses is set in its own configuration (F-Sense, FT-817, Yaesu CAT, KX2/KX3, JUMA-TRX2) — if that is set to Manual, =A achieves nothing. Without this switch the PA stays on the last commanded band, because =Bn moves it from A to M.",
@@ -364,6 +366,7 @@ const NSEG=36;
 function mkLevel(el,o){
   el.dataset.cfg=JSON.stringify(o);
   let s='<div class="hd"><span class="lb">'+o.label+'</span>'+
+        (o.peak?'<span class="pk"></span>':'')+
         '<span class="vl"><span class="n">-</span><small>'+(o.unit||'')+'</small></span></div>'+
         '<div class="segs">';
   for(let i=0;i<NSEG;i++)s+='<i></i>';
@@ -377,23 +380,50 @@ function segColor(o,i){
   const val=o.min+(i+0.5)*(o.max-o.min)/NSEG;
   return val>=o.high?C.bad:val>=o.warn?C.warn:C.ok;
 }
-function setLevel(el,val,dec){
+function setLevel(el,val,dec,peak){
   const o=JSON.parse(el.dataset.cfg);
-  const n=el.querySelector(".n"),segs=el.querySelectorAll(".segs i");
+  const n=el.querySelector(".n"),pk=el.querySelector(".pk"),segs=el.querySelectorAll(".segs i");
   const ok=val!==null&&val!==undefined&&!isNaN(val);
   n.textContent=ok?Number(val).toFixed(dec===undefined?1:dec):"-";
   const lit=ok?Math.round(Math.max(0,Math.min(1,(val-o.min)/(o.max-o.min)))*NSEG):0;
-  segs.forEach((s,i)=>{s.style.background=i<lit?segColor(o,i):C.off});
+  segs.forEach((s,i)=>{s.className="";s.style.background=i<lit?segColor(o,i):C.off});
+  const peakOk=pk&&peak!==null&&peak!==undefined&&!isNaN(peak)&&peak>o.min;
+  if(pk)pk.textContent=peakOk?t("tPeak")+" "+Number(peak).toFixed(dec===undefined?1:dec)+(o.unit||""):"";
+  if(peakOk){
+    const pi=Math.max(0,Math.min(NSEG-1,Math.ceil((peak-o.min)/(o.max-o.min)*NSEG)-1));
+    segs[pi].className="peak";
+  }
   n.style.color=!ok?"var(--dim)":val>=o.high?C.bad:val>=o.warn?C.warn:"var(--fg)";
 }
 // The SWR zones come from the settings - the PA's trip limit (factory default
 // 3.0) is not part of the status message.
 let SWRWARN=2.0,SWRHIGH=2.5;
 function buildLevels(){
-  mkLevel($("lRf"), {label:"RF",   min:0, max:150, warn:100, high:120, unit:" W"});
+  mkLevel($("lRf"), {label:"RF",   min:0, max:150, warn:100, high:120, unit:" W", peak:true});
   mkLevel($("lSwr"),{label:"VSWR", min:1, max:3, warn:SWRWARN, high:SWRHIGH, unit:""});
 }
 buildLevels();
+
+// Keep the highest sampled RF value for one complete transmission. It stays
+// visible briefly after unkeying so short SSB peaks can still be read, then a
+// new TX starts with a clean peak. The PA itself is sampled every 500 ms.
+let rfPeak=null,rfWasTx=false,rfPeakUntil=0;
+const RF_PEAK_AFTER_TX_MS=3000;
+function updateRfPeak(s){
+  const now=Date.now();
+  if(!s.online){rfPeak=null;rfWasTx=false;rfPeakUntil=0;return null}
+  if(s.tx){
+    if(!rfWasTx)rfPeak=0;
+    if(!isNaN(s.watts)&&s.watts>rfPeak)rfPeak=s.watts;
+    rfPeakUntil=now+RF_PEAK_AFTER_TX_MS;
+  }else if(rfWasTx){
+    rfPeakUntil=now+RF_PEAK_AFTER_TX_MS;
+  }else if(now>=rfPeakUntil){
+    rfPeak=null;
+  }
+  rfWasTx=!!s.tx;
+  return rfPeak;
+}
 
 // --- Dial gauges: 180 degree arc with zone colours ------------------------
 const GA1=180,GR=40,GCX=50,GCY=47;
@@ -719,7 +749,7 @@ $("state").style.color=s.online?(s.operate?C.ok:"var(--dim)"):C.bad;
 $("bOp").className=s.operate?"op":"";$("bSb").className=s.operate?"":"act";
 $("txb").className="txb"+(s.tx?" on":"");$("txb").textContent=s.tx?"TX":"RX";
 
-setLevel($("lRf"), s.online?s.watts:null,1);
+setLevel($("lRf"), s.online?s.watts:null,1,updateRfPeak(s));
 setLevel($("lSwr"),s.online?s.swr:null,1);
 
 if(s.online){
