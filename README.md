@@ -407,6 +407,12 @@ PA's own instrument as a *suppressed-zero voltmeter* — exactly this kind.
 RF, current and fan keep the filled bar: those are quantities that really do
 grow from zero.
 
+The RF bar also has a **peak hold**. At the start of each transmission it
+resets, retains the highest sampled output power for the whole transmission,
+and shows that peak as a bright segment and numeric value. The indication
+remains for three seconds after returning to receive, making short voice peaks
+readable despite the PA's 500 ms status interval.
+
 The voltage limits are the **PA's defaults**: under-voltage 11.00 V, pre-limit
 11.20 V, over-voltage 14.80 V (adjustable from 14.00 V), nominal 13.80 V. For
 current the manual names only the **24 A hardware trip** of the MAX4373 — which
