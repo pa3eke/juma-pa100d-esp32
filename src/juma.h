@@ -24,7 +24,6 @@ public:
     bool setOperate(bool on);            // =O / =S
     bool setAutoSelect();                // =A
     bool clearAlarm();                   // =C
-    bool powerOff(bool saveState);       // =P1 / =P0
 
     uint32_t rxLines() const { return rxLines_; }
     uint32_t badLines() const { return badLines_; }

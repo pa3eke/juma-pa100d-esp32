@@ -283,8 +283,8 @@ static void dispatch(char* s) {
 
     if (!strcmp(cmd, "pa")) {
         if (!arg) { io->println(F("example: pa =R")); return; }
-        juma.send(arg);
-        io->printf("sent: '%s'\n", arg);
+        if (juma.send(arg)) io->printf("sent: '%s'\n", arg);
+        else io->println(F("command rejected or queue full"));
         return;
     }
 

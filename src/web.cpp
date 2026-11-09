@@ -193,7 +193,6 @@ static void handleCmd(const char* text) {
     else if (name == "gain")   juma.setGain((uint8_t)v);
     else if (name == "operate")juma.setOperate(v != 0);
     else if (name == "clear")  juma.clearAlarm();
-    else if (name == "poweroff") juma.powerOff(false);
     else if (name == "bandsel") {
         // Only meaningful while the ESP32 is not choosing the band itself -
         // otherwise the next '=Bn' would undo the change immediately. The UI

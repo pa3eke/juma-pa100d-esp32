@@ -12,6 +12,17 @@ static const char* TERM = "\n\r";
 
 // RAII, so no early return can leave the mutex taken.
 namespace {
+// Reject power commands at every line boundary, including embedded CR/LF.
+bool blockedPowerCommand(const char* cmd) {
+    if (!cmd) return true;
+    bool lineStart = true;
+    for (const char* p = cmd; *p; ++p) {
+        if (lineStart && p[0] == '=' && p[1] == 'P' &&
+            (p[2] == '0' || p[2] == '1')) return true;
+        lineStart = (*p == '\r' || *p == '\n');
+    }
+    return false;
+}
 struct Lock {
     SemaphoreHandle_t m;
     explicit Lock(SemaphoreHandle_t h) : m(h) { if (m) xSemaphoreTake(m, portMAX_DELAY); }
@@ -53,6 +64,7 @@ JumaStatus Juma::status() const {
 
 // Private: always called with the lock held.
 bool Juma::enqueue(const char* cmd) {
+    if (blockedPowerCommand(cmd)) return false;
     uint8_t next = (uint8_t)((qTail_ + 1) % QN);
     if (next == qHead_) return false;             // queue full
     strncpy(q_[qTail_], cmd, QL - 1);
@@ -63,6 +75,10 @@ bool Juma::enqueue(const char* cmd) {
 
 void Juma::pumpQueue() {
     if (qHead_ == qTail_) return;
+    if (blockedPowerCommand(q_[qHead_])) {
+        qHead_ = (uint8_t)((qHead_ + 1) % QN);
+        return;
+    }
     if (millis() - lastTx_ < CMD_GAP_MS) return;
     // The PA leaves remote mode 5 s after the last command, and then sits in
     // STANDBY. Everything runs from one loop, so anything that blocks it -
@@ -88,6 +104,7 @@ bool Juma::send(const char* cmd)        { Lock lk(mtx_); return enqueue(cmd); }
 // Bypasses the queue and CMD_GAP. For cases where loop() will not run
 // afterwards - such as just before an OTA update.
 void Juma::sendNow(const char* cmd) {
+    if (blockedPowerCommand(cmd)) return;
     Lock lk(mtx_);
     Serial2.print(cmd);
     Serial2.print(TERM);
@@ -97,7 +114,6 @@ void Juma::sendNow(const char* cmd) {
 bool Juma::setOperate(bool on)          { Lock lk(mtx_); return enqueue(on ? "=O" : "=S"); }
 bool Juma::setAutoSelect()              { Lock lk(mtx_); return enqueue("=A"); }
 bool Juma::clearAlarm()                 { Lock lk(mtx_); return enqueue("=C"); }
-bool Juma::powerOff(bool saveState)     { Lock lk(mtx_); return enqueue(saveState ? "=P1" : "=P0"); }
 
 bool Juma::setBand(uint8_t n) {
     if (n < 1 || n > 9) return false;

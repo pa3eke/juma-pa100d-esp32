@@ -678,7 +678,7 @@ Commands in ASCII, terminated with `\n\r` (0x0A 0x0D):
 | `=Bn` | band, n = 1 (160 m) … 9 (10 m) |
 | `=Gn` | attenuator, n = 1…4 |
 | `=C` | clear alarm |
-| `=Pn` | power off, n = 0 without / 1 with saving the state |
+| `=Pn` | power off, n = 0 without / 1 with saving the state (blocked by this controller) |
 
 Reply to `=R`, **13** fields, e.g. `O:A:T:C: 5:1:1.0:14.09: 8.1: 27.2: 26:0: 0`:
 

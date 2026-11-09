@@ -70,7 +70,6 @@ button:disabled{opacity:.38;cursor:not-allowed}
 button:disabled:hover{border-color:var(--line)}
 button.act{background:var(--acc);border-color:var(--acc);color:#08191b;font-weight:600}
 button.op{background:var(--ok);border-color:var(--ok);color:#03170a;font-weight:600}
-button.danger{border-color:#6b2320;color:#f0928d}
 .state{font-size:30px;font-weight:700;letter-spacing:1px;line-height:1}
 .txb{padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;background:var(--btn2);color:var(--dim)}
 .txb.on{background:var(--bad);color:#fff}
@@ -237,11 +236,6 @@ input[type=file]{padding:7px}
     <div class="hint" data-t="otaStbyHint"></div>
   </div>
 
-  <div class="sec"><label data-t="lOff"></label>
-    <button class="danger" id="bOff" style="width:100%">Power OFF</button>
-    <div class="hint" data-th="offHint"></div>
-  </div>
-
   <div class="sec"><label data-t="tTemp"></label>
     <div class="row" style="margin:10px 0">
       <span class="sw" id="tempalarm"><i></i><span data-t="lTempAlarm"></span></span></div>
@@ -294,8 +288,7 @@ tAtt:"Abschwächer",bClear:"Alarm quittieren",alarmTitle:"JUMA PA: Alarm",alarmB
 cfgHdr:"Konfiguration",lHost:"Gerätename (mDNS, OTA)",lSsid:"WLAN SSID",lPass:"WLAN Passwort",phPass:"unverändert lassen",
 lTciHost:"TCI Host (SDR-Software)",lTciPort:"TCI Port",lTciOn:"TCI aktiv",lTciLost:"Bei TCI-Verlust auf Automatik der PA",tciLostHint:"Schickt nach 15 s ohne TCI ein =A. Welche Methode die PA dann nutzt, steht in ihrer eigenen Konfiguration (F-Sense, FT-817, Yaesu CAT, KX2/KX3, JUMA-TRX2) — steht sie dort auf Manual, bringt =A nichts. Ohne diesen Schalter bleibt die PA auf dem zuletzt kommandierten Band, weil =Bn sie von A auf M schaltet.",
 bSave:"Speichern & neu starten",lFw:"Firmware-Update",bUpload:"Hochladen",
-lOff:"Verstärker abschalten",lLang:"Sprache",lTheme:"Darstellung",thSystem:"System",thLight:"Hell",thDark:"Dunkel",lOtaStby:"Vor dem Update auf STANDBY",otaStbyHint:"Wirkt sofort. Schickt =S, bevor die neue Firmware geschrieben wird. Während des Schreibens und des Neustarts regelt nichts die PA. Aus lassen, wenn dir Entwicklungs-Uploads nicht die Betriebsart wegnehmen sollen.",
-offHint:"Schickt <code>=P0</code> ohne Zustandsspeicherung. Einschalten geht nur am Gerät — zweimal drücken zur Bestätigung.",
+lLang:"Sprache",lTheme:"Darstellung",thSystem:"System",thLight:"Hell",thDark:"Dunkel",lOtaStby:"Vor dem Update auf STANDBY",otaStbyHint:"Wirkt sofort. Schickt =S, bevor die neue Firmware geschrieben wird. Während des Schreibens und des Neustarts regelt nichts die PA. Aus lassen, wenn dir Entwicklungs-Uploads nicht die Betriebsart wegnehmen sollen.",
 fans:["Aus","Langsam","Mittel","Schnell"],
 alarms:["SWR zu hoch","Überstrom","Übertemperatur","Überspannung",
         "Unterspannung Vorwarnung","Unterspannung Abschaltung"],
@@ -304,7 +297,6 @@ tNorm:"normal",tWarm:"warm",tHot:"zu heiß",tooHot:"Temperatur %s°",badSwr:"SWR
 running:"Läuft: ",noFile:"keine Datei gewählt",auth:"Anmeldung…",loading:"lade %s kB…",
 upOk:"OK — Gerät startet neu",upErr:"Fehler %s",upLocked:"Update gesperrt — zuerst ein Update-Passwort setzen: Konsole otapass <neu>",upAbort:"Übertragung abgebrochen",
 saving:"speichere…",restarting:"Gerät startet neu",saved:"Gespeichert — Gerät startet neu",wsLost:"Verbindung zum Gerät unterbrochen — versuche erneut…",
-confirm:"Wirklich? Nochmal drücken",
 nAboff:"TCI-Bandwahl aus — die PA folgt der SDR-Software nicht",
 nTcioff:"TCI-Client ist abgeschaltet",
 nTcidis:"TCI nicht verbunden",nTciauto:"TCI weg — PA auf eigene Bandwahl (=A) zurückgestellt",nSelstuck:"PA bleibt auf eigener Bandwahl, obwohl die TCI-Bandwahl sie auf Manuell holen will",
@@ -323,8 +315,7 @@ tAtt:"Attenuator",bClear:"Clear alarm",alarmTitle:"JUMA PA: alarm",alarmBody:"Th
 cfgHdr:"Setup",lHost:"Device name (mDNS, OTA)",lSsid:"Wi-Fi SSID",lPass:"Wi-Fi password",phPass:"leave unchanged",
 lTciHost:"TCI host (SDR software)",lTciPort:"TCI port",lTciOn:"TCI enabled",lTciLost:"Fall back to the PA\u2019s own band select",tciLostHint:"Sends =A after 15 s without TCI. Which method the PA then uses is set in its own configuration (F-Sense, FT-817, Yaesu CAT, KX2/KX3, JUMA-TRX2) — if that is set to Manual, =A achieves nothing. Without this switch the PA stays on the last commanded band, because =Bn moves it from A to M.",
 bSave:"Save & restart",lFw:"Firmware update",bUpload:"Upload",
-lOff:"Power down amplifier",lLang:"Language",lTheme:"Appearance",thSystem:"System",thLight:"Light",thDark:"Dark",lOtaStby:"Standby before update",otaStbyHint:"Applies immediately. Sends =S before the new firmware is written. Nothing controls the PA while writing and rebooting. Turn off if development uploads should not take away the operating state.",
-offHint:"Sends <code>=P0</code> without saving state. Powering on is only possible at the unit — press twice to confirm.",
+lLang:"Language",lTheme:"Appearance",thSystem:"System",thLight:"Light",thDark:"Dark",lOtaStby:"Standby before update",otaStbyHint:"Applies immediately. Sends =S before the new firmware is written. Nothing controls the PA while writing and rebooting. Turn off if development uploads should not take away the operating state.",
 fans:["Off","Slow","Medium","Fast"],
 alarms:["High SWR","Over-current","High temperature","High voltage",
         "Low voltage pre-limit","Low voltage final limit"],
@@ -333,7 +324,6 @@ tNorm:"normal",tWarm:"warm",tHot:"too hot",tooHot:"temperature %s°",badSwr:"SWR
 running:"Running: ",noFile:"no file selected",auth:"Authenticating…",loading:"uploading %s kB…",
 upOk:"OK — device restarting",upErr:"Error %s",upLocked:"Updates locked — set an update password first: console otapass <new>",upAbort:"transfer aborted",
 saving:"saving…",restarting:"device restarting",saved:"Saved — device restarting",wsLost:"Connection to the device lost — retrying…",
-confirm:"Confirm? Press again",
 nAboff:"TCI band select off — the PA does not follow the SDR software",
 nTcioff:"TCI client is disabled",
 nTcidis:"TCI not connected",nTciauto:"TCI lost — PA switched back to its own band select (=A)",nSelstuck:"PA stays on its own band select although TCI band select wants it on Manual",
@@ -359,7 +349,7 @@ function readColors(){
 }
 readColors();
 const $=i=>document.getElementById(i);
-let ws,st={},offArm=0;
+let ws,st={};
 
 // --- Level bars -----------------------------------------------------------
 const NSEG=36;
@@ -567,11 +557,6 @@ $("bGear").onclick=function(){panel(true)};
 $("bClose").onclick=function(){panel(false)};
 $("scrim").onclick=function(){panel(false)};
 addEventListener("keydown",function(e){if(e.key==="Escape")panel(false)});
-
-$("bOff").onclick=function(e){const b=e.currentTarget;
-if(Date.now()-offArm>3000){offArm=Date.now();b.textContent=t("confirm");
-setTimeout(function(){if(Date.now()-offArm>=3000)b.textContent="Power OFF"},3100);return}
-offArm=0;b.textContent="Power OFF";send("poweroff",0)};
 
 $("cfg").onsubmit=function(e){e.preventDefault();const f=new FormData(e.target);
 f.set("tcien",$("tcien").classList.contains("on")?"1":"0");
